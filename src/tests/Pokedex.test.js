@@ -1,7 +1,6 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import renderWithRouter from '../renderWithRouter';
-import Pokedex from '../pages/Pokedex';
 import App from '../App';
 
 describe('Testando Componente Pokedex', () => {
@@ -36,6 +35,10 @@ describe('Testando Componente Pokedex', () => {
     expect(pokemon).toHaveTextContent(/snorlax/i);
     userEvent.click(nextButton);
     expect(pokemon).toHaveTextContent(/dragonair/i);
+    if (pokemon === /dragonair/i) {
+      userEvent.click(nextButton);
+      expect(pokemon).toHaveTextContent(/pikachu/i);
+    }
   });
   test('Teste se é mostrado apenas um Pokémon por vez.', () => {
     renderWithRouter(<App />);
@@ -49,36 +52,25 @@ describe('Testando Componente Pokedex', () => {
   });
   test('Teste se a Pokédex tem os botões de filtro.', () => {
     renderWithRouter(<App />);
-    const filterButton = screen.getAllByTestId('pokemon-type-button');
-    const allButton = screen.getByRole('button', { name: /all/i });
-    const pokemon = screen.getByTestId('pokemon-name');
-    const nextButton = screen.getByRole('button', {
-      name: /próximo pokémon/i,
+    const pokemonButtons = screen.getAllByTestId('pokemon-type-button');
+    const pokemonTypes = ['Electric', 'Fire', 'Bug', 'Poison', 'Psychic', 'Normal', 'Dragon'];
+    pokemonTypes.forEach((p, i) => {
+      expect(pokemonButtons[i].innerHTML).toBe(p);
+      const pokeType = screen.getByTestId('pokemon-type');
+      const button = screen.getByRole('button', {
+        name: pokemonButtons[i].innerHTML,
+      });
+      userEvent.click(button);
+      expect(pokeType).toHaveTextContent(p);
     });
+  });
+  test('Teste se a Pokédex contém um botão para resetar o filtro.', () => {
+    renderWithRouter(<App />);
+    const pikachu = screen.getByText(/pikachu/i);
+    expect(pikachu).toBeInTheDocument();
+    const allButton = screen.getByRole('button', { name: /all/i });
     expect(allButton).toBeInTheDocument();
-    userEvent.click(filterButton[0]); // electric click
-    // electric pokemons
-    expect(pokemon).toHaveTextContent(/pikachu/i);
-    userEvent.click(filterButton[1]); // fire click
-    // fire pokemons
-    expect(pokemon).toHaveTextContent(/charmander/i);
-    userEvent.click(nextButton);
-    expect(pokemon).toHaveTextContent(/rapidash/i);
-    userEvent.click(filterButton[2]); // bug click
-    // bug pokemons
-    expect(pokemon).toHaveTextContent(/caterpie/i);
-    userEvent.click(filterButton[3]); // poison click
-    // poison pokemons
-    expect(pokemon).toHaveTextContent(/ekans/i);
-    userEvent.click(filterButton[4]); // psychic click
-    // psychic pokemons
-    expect(pokemon).toHaveTextContent(/alakazam/i);
-    userEvent.click(nextButton);
-    expect(pokemon).toHaveTextContent(/mew/i);
-    userEvent.click(filterButton[5]); // normal click
-    // normal pokemons
-    expect(pokemon).toHaveTextContent(/snorlax/i);
-    userEvent.click(filterButton[6]); // dragon click
-    expect(pokemon).toHaveTextContent(/dragonair/i);
+    userEvent.click(allButton);
+    expect(pikachu).toBeInTheDocument();
   });
 });
