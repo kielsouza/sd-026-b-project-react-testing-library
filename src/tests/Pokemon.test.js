@@ -3,6 +3,8 @@ import userEvent from '@testing-library/user-event';
 import renderWithRouter from '../renderWithRouter';
 import App from '../App';
 
+const pokemonHref = '/pokemon/25';
+
 describe('Testando Componente Pokemon', () => {
   test('Teste se é renderizado um card com as informações de determinado Pokémon:', () => {
     renderWithRouter(<App />);
@@ -23,7 +25,7 @@ describe('Testando Componente Pokemon', () => {
     const pokemonLink = screen.getByRole('link', {
       name: /more details/i,
     });
-    expect(pokemonLink).toHaveAttribute('href', '/pokemon/25');
+    expect(pokemonLink).toHaveAttribute('href', pokemonHref);
   });
   test('Teste se ao clicar no link de navegação do Pokémon, é feito o redirecionamento da aplicação para a página de detalhes de Pokémon.', () => {
     const { history } = renderWithRouter(<App />);
@@ -35,7 +37,7 @@ describe('Testando Componente Pokemon', () => {
       name: /pikachu details/i,
       level: 2,
     });
-    expect(history.location.pathname).toBe('/pokemon/25');
+    expect(history.location.pathname).toBe(pokemonHref);
     expect(header).toHaveTextContent('Pikachu Details');
   });
   test('Teste também se a URL exibida no navegador muda para /pokemon/<id>.', () => {
@@ -46,7 +48,7 @@ describe('Testando Componente Pokemon', () => {
     userEvent.click(link);
     const pokemonName = screen.getByTestId('pokemon-name');
     expect(pokemonName).toHaveTextContent('Pikachu');
-    expect(history.location.pathname).toBe('/pokemon/25');
+    expect(history.location.pathname).toBe(pokemonHref);
   });
   test('Teste se existe um ícone de estrela nos Pokémon favoritados.', () => {
     renderWithRouter(<App />);
@@ -54,7 +56,6 @@ describe('Testando Componente Pokemon', () => {
       name: /more details/i,
     });
     userEvent.click(link);
-    const pokemonName = screen.getByTestId('pokemon-name');
     const favoriteCheck = screen.getByRole('checkbox', {
       name: /pokémon favoritado/i,
     });
@@ -63,6 +64,6 @@ describe('Testando Componente Pokemon', () => {
       name: /pikachu is marked as favorite/i,
     });
     expect(favoriteImg).toHaveAttribute('src', '/star-icon.svg');
-    expect(favoriteImg).toHaveAttribute('alt', `${pokemonName.innerHTML} is marked as favorite`);
+    expect(favoriteImg).toHaveAttribute('alt', 'Pikachu is marked as favorite');
   });
 });
